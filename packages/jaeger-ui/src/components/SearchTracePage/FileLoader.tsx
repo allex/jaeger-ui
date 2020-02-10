@@ -14,16 +14,17 @@
 
 import * as React from 'react';
 import { Upload, Icon } from 'antd';
+import { UploadFile } from 'antd/lib/upload/interface';
 
 const Dragger = Upload.Dragger;
 
 type FileLoaderProps = {
-  loadJsonTraces: (fileList: FileList) => void;
+  loadJsonTraces: (params: { fileList: Array<UploadFile> }) => void;
 };
 
 export default function FileLoader(props: FileLoaderProps) {
   return (
-    <Dragger accept=".json" customRequest={props.loadJsonTraces} multiple>
+    <Dragger accept=".json" onChange={props.loadJsonTraces} multiple>
       <p className="ant-upload-drag-icon">
         <Icon type="file-add" />
       </p>

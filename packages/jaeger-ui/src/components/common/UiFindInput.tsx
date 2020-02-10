@@ -96,7 +96,6 @@ export class UnconnectedUiFindInput extends React.PureComponent<TProps, StateTyp
 
     return (
       <Input
-        autosize={null}
         placeholder="Find..."
         {...inputProps}
         onBlur={this.handleInputBlur}
@@ -111,7 +110,7 @@ export class UnconnectedUiFindInput extends React.PureComponent<TProps, StateTyp
 
 export function extractUiFindFromState(state: ReduxState): TExtractUiFindFromStateReturn {
   const { uiFind: uiFindFromUrl } = queryString.parse(state.router.location.search);
-  const uiFind = Array.isArray(uiFindFromUrl) ? uiFindFromUrl.join(' ') : uiFindFromUrl;
+  const uiFind = Array.isArray(uiFindFromUrl) ? uiFindFromUrl.join(' ') : uiFindFromUrl || undefined;
   return { uiFind };
 }
 

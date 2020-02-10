@@ -37,7 +37,7 @@ const isTest = process.env.NODE_ENV === 'test';
 // In test mode if development and envvar REACT_APP_GA_DEBUG is true-ish
 const isDebugMode =
   (isDev && isTruish(process.env.REACT_APP_GA_DEBUG)) ||
-  isTruish(queryString.parse(_get(window, 'location.search'))['ga-debug']);
+  isTruish(queryString.parse(_get(window, 'location.search'))['ga-debug'] || undefined);
 
 const config = getConfig();
 const gaID = _get(config, 'tracking.gaID');

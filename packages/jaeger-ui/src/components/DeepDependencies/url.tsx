@@ -63,7 +63,7 @@ export const getUrlState = memoizeOne(function getUrlState(search: string): TDdg
     visEncoding,
   } = queryString.parse(search);
   const rv: TDdgSparseUrlState = {
-    density: firstParam(density) as EDdgDensity,
+    density: firstParam(density || EDdgDensity.PreventPathEntanglement) as EDdgDensity,
   };
   if (end) {
     rv.end = Number.parseInt(firstParam(end), 10);

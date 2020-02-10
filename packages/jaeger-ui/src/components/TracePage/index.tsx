@@ -115,7 +115,7 @@ export function makeShortcutCallbacks(adjRange: (start: number, end: number) => 
       adjRange(startChange, endChange);
     };
   }
-  return _mapValues(shortcutConfig, getHandler);
+  return _mapValues(shortcutConfig, getHandler) as any;
 }
 
 // export for tests
@@ -420,7 +420,7 @@ export function mapStateToProps(state: ReduxState, ownProps: TOwnProps): TReduxP
   const archiveTraceState = id ? archive[id] : null;
   const archiveEnabled = Boolean(config.archiveEnabled);
   const { state: locationState } = router.location;
-  const searchUrl = (locationState && locationState.fromSearch) || null;
+  const searchUrl = (locationState && (locationState as any).fromSearch) || null;
 
   return {
     ...extractUiFindFromState(state),
