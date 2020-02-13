@@ -12,91 +12,56 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+/* eslint-disable no-shadow */
 /* eslint-disable import/no-extraneous-dependencies */
+/* eslint-disable react/no-find-dom-node */
 
 import * as React from 'react';
-import { Icon } from 'antd';
-import VirtualizedSelect from 'react-virtualized-select';
-
-import 'react-select/dist/react-select.css';
-import 'react-virtualized/styles.css';
-import 'react-virtualized-select/styles.css';
-
-import './VirtSelect.css';
-
-/*
-type option = {
-  disabled: boolean,
-  className: string,
-  [key: string]: any,
-}
-
-type RenderOptionArgs = {
-  focusedOption: option,
-  focusOption: (obj: Object) => void,
-  key: string,
-  labelKey: string,
-  option: option,
-  selectValue: (obj: Object) => void,
-  style: object,
-  valueArray: object[] | null | undefined,
-};
- */
+import ReactDOM from 'react-dom';
+import { Select } from 'antd';
 
 type RenderArrowArgs = {
   isOpen: boolean;
 };
 
-function renderOption({
-  focusedOption,
-  focusOption,
-  key,
-  labelKey,
-  option,
-  selectValue,
-  style,
-  valueArray,
-}: // react-Virtualized-select is deprecated and I cannot unravel its types
-// maybe time to use react-select which supports async
-// TODO discuss 👆
-any) /* RenderOptionArgs) \*\/: JSX.Element */ {
-  const className = ['VirtSelect--option'];
-  if (option === focusedOption) {
-    className.push('is-focused');
-  }
-  if (option.disabled) {
-    className.push('is-disabled');
-  }
-  if (valueArray && valueArray.indexOf(option) >= 0) {
-    className.push('is-selected');
-  }
-  if (option.className) {
-    className.push(option.className);
-  }
-  const events = option.disabled
-    ? {}
-    : {
-        onClick: () => selectValue(option),
-        onMouseEnter: () => focusOption(option),
-      };
-  return (
-    <div className={className.join(' ')} key={key} style={style} title={option.title} {...events}>
-      {option[labelKey]}
-    </div>
-  );
-}
+const Option = Select.Option;
 
-function renderArrow({ isOpen }: RenderArrowArgs) {
-  return <Icon className={`VirtSelect--arrow ${isOpen ? 'is-open' : ''}`} type="down" />;
-}
+type VirtSelectProps = {
+  value?: string;
+  defaultValue?: string;
+  options: Array<{ value: string; label: string }>;
+  clearable?: boolean;
+  disabled?: boolean;
+  required?: boolean;
+  onChange(e: string): void;
+};
 
-export default function VirtSelect(props: object) {
+const isEmpty = (v?: string) => v === '' || v == null;
+
+export default function VirtSelect(props: VirtSelectProps) {
+  const { options, value, clearable, ...dest } = props;
+
+  // fix <Select /> `showClear` not work when `value` present
+  const setRef =
+    clearable && props.onChange
+      ? (elem: Select<string>) => {
+          const node = elem && ReactDOM.findDOMNode(elem);
+          if (node && node.nodeType === 1) {
+            const clearHook = (node as HTMLElement).querySelector('.ant-select-selection__clear');
+            if (clearHook) {
+              (clearHook as any).onclick = () => props.onChange('');
+            }
+          }
+        }
+      : () => {};
+
   return (
-    <VirtualizedSelect
-      className="VirtSelect"
-      arrowRenderer={renderArrow}
-      optionRenderer={renderOption}
-      {...props}
-    />
+    <Select ref={setRef} value={isEmpty(value) ? undefined : value} allowClear={!!clearable} {...dest}>
+      {options.map(({ label, value }) => (
+        <Option key={value} value={value}>
+          {label}
+        </Option>
+      ))}
+    </Select>
   );
 }
