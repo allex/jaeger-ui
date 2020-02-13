@@ -23,6 +23,7 @@ import TopNav from './TopNav';
 import { ReduxState } from '../../types';
 import { EmbeddedState } from '../../types/embedded';
 import { trackPageView } from '../../utils/tracking';
+import { addClass } from '../../utils/dom';
 
 import './Page.css';
 
@@ -38,8 +39,11 @@ const { Header, Content } = Layout;
 // export for tests
 export class PageImpl extends React.Component<TProps> {
   componentDidMount() {
-    const { pathname, search } = this.props;
+    const { pathname, search, embedded } = this.props;
     trackPageView(pathname, search);
+    if (embedded) {
+      addClass(document.documentElement, 'ui-embed');
+    }
   }
 
   componentWillReceiveProps(nextProps: TProps) {

@@ -13,3 +13,4 @@
 // limitations under the License.
 
 /// <reference path="custom.d.ts" />
+/// <reference path="lib.ie.d.ts" />
