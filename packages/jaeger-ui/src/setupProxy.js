@@ -15,9 +15,14 @@
 // eslint-disable-next-line import/no-extraneous-dependencies
 const proxy = require('http-proxy-middleware');
 
+const normalizePrefix = v => {
+  return (v.substring(0, 1) === '.' ? '/' : v).replace(/[/]+$/, '');
+};
+
 module.exports = function setupProxy(app) {
+  const prefix = normalizePrefix(process.env.PUBLIC_URL || '');
   app.use(
-    proxy('/api', {
+    proxy(`${prefix}/api`, {
       target: 'http://localhost:16686',
       logLevel: 'silent',
       secure: false,
@@ -27,7 +32,7 @@ module.exports = function setupProxy(app) {
     })
   );
   app.use(
-    proxy('/analytics', {
+    proxy(`${prefix}/analytics`, {
       target: 'http://localhost:16686',
       logLevel: 'silent',
       secure: false,
