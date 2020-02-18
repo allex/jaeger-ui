@@ -14,7 +14,7 @@
 
 /* eslint-disable import/first */
 
-jest.mock('../site-prefix', () => `${global.location.origin}/a/site/prefix/`);
+jest.mock('../site-prefix', () => `${window.location.origin}/a/site/prefix/`);
 
 import prefixUrl, { getPathPrefix } from './prefix-url';
 
