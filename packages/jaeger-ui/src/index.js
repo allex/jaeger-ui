@@ -34,11 +34,12 @@ import 'u-basscss/css/position.css';
 import 'u-basscss/css/typography.css';
 
 const UI_ROOT_ID = 'jaeger-ui-root';
+const rootEl = document.getElementById(UI_ROOT_ID);
 
 if (trackingContext) {
   trackingContext.context(() => {
-    ReactDOM.render(<JaegerUIApp />, document.getElementById(UI_ROOT_ID));
+    ReactDOM.render(<JaegerUIApp />, rootEl);
   });
 } else {
-  ReactDOM.render(<JaegerUIApp />, document.getElementById(UI_ROOT_ID));
+  ReactDOM.render(<JaegerUIApp />, rootEl);
 }

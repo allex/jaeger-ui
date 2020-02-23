@@ -14,8 +14,9 @@
 
 import React, { Component } from 'react';
 import { createBrowserHistory as createHistory } from 'history';
+import PropTypes from 'prop-types';
 import { Provider } from 'react-redux';
-import { Route, Redirect, Switch } from 'react-router-dom';
+import { Router, Route, Redirect as RedirectOri, Switch } from 'react-router-dom';
 import { ConnectedRouter } from 'react-router-redux';
 
 import NotFound from './NotFound';
@@ -41,6 +42,27 @@ import './index.css';
 
 const history = createHistory();
 
+// fix <Redirect /> does not preserve query string (https://github.com/ReactTraining/react-router/issues/5818)
+const Redirect = ({ location, to: toPath, ...rest }) => {
+  const to =
+    typeof toPath === 'string'
+      ? {
+          pathname: toPath,
+          search: location.search,
+        }
+      : toPath;
+  return <RedirectOri to={to} location={location} {...rest} />;
+};
+
+Redirect.propTypes = {
+  to: PropTypes.string.isRequired,
+  location: PropTypes.shape({}),
+};
+
+Redirect.defaultProps = {
+  location: null,
+};
+
 export default class JaegerUIApp extends Component {
   constructor(props) {
     super(props);
@@ -51,25 +73,27 @@ export default class JaegerUIApp extends Component {
 
   render() {
     return (
-      <Provider store={this.store}>
-        <ConnectedRouter history={history}>
-          <Page>
-            <Switch>
-              <Route path={searchPath} component={SearchTracePage} />
-              <Route path={traceDiffPath} component={TraceDiff} />
-              <Route path={tracePath} component={TracePage} />
-              <Route path={dependenciesPath} component={DependencyGraph} />
-              <Route path={deepDependenciesPath} component={DeepDependencies} />
+      <Router history={history}>
+        <Provider store={this.store}>
+          <ConnectedRouter history={history}>
+            <Page>
+              <Switch>
+                <Route path={searchPath} component={SearchTracePage} />
+                <Route path={traceDiffPath} component={TraceDiff} />
+                <Route path={tracePath} component={TracePage} />
+                <Route path={dependenciesPath} component={DependencyGraph} />
+                <Route path={deepDependenciesPath} component={DeepDependencies} />
 
-              <Redirect exact path="/" to={searchPath} />
-              <Redirect exact path={prefixUrl()} to={searchPath} />
-              <Redirect exact path={prefixUrl('/')} to={searchPath} />
+                <Redirect exact path="/" to={searchPath} />
+                <Redirect exact path={prefixUrl()} to={searchPath} />
+                <Redirect exact path={prefixUrl('/')} to={searchPath} />
 
-              <Route component={NotFound} />
-            </Switch>
-          </Page>
-        </ConnectedRouter>
-      </Provider>
+                <Route component={NotFound} />
+              </Switch>
+            </Page>
+          </ConnectedRouter>
+        </Provider>
+      </Router>
     );
   }
 }
