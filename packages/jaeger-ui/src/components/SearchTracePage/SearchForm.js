@@ -42,10 +42,7 @@ const Option = Select.Option;
 
 const AdaptedInput = reduxFormFieldAdapter({ AntInputComponent: Input });
 const AdaptedSelect = reduxFormFieldAdapter({ AntInputComponent: Select });
-const AdaptedVirtualSelect = reduxFormFieldAdapter({
-  AntInputComponent: VirtSelect,
-  onChangeAdapter: option => (option ? option.value : null),
-});
+const AdaptedVirtualSelect = reduxFormFieldAdapter({ AntInputComponent: VirtSelect });
 const ValidatedAdaptedInput = reduxFormFieldAdapter({ AntInputComponent: Input, isValidatedInput: true });
 
 export function getUnixTimeStampInMSFromForm({ startDate, startDateTime, endDate, endDateTime }) {
@@ -240,7 +237,7 @@ export function submitForm(fields, searchTraces) {
 
   trackFormInput(resultsLimit, operation, tags, minDuration, maxDuration, lookback);
 
-  searchTraces({
+  return searchTraces({
     service,
     operation: operation !== DEFAULT_OPERATION ? operation : undefined,
     limit: resultsLimit,
@@ -262,14 +259,17 @@ export class SearchFormImpl extends React.PureComponent {
       selectedLookback,
       selectedService = '-',
       services,
-      submitting: disabled,
+      loading,
+      submitting,
     } = this.props;
+
+    const disabled = submitting || loading;
     const selectedServicePayload = services.find(s => s.name === selectedService);
     const opsForSvc = (selectedServicePayload && selectedServicePayload.operations) || [];
     const noSelectedService = selectedService === '-' || !selectedService;
     const tz = selectedLookback === 'custom' ? new Date().toTimeString().replace(/^.*?GMT/, 'UTC') : null;
     return (
-      <Form layout="vertical" onSubmit={handleSubmit}>
+      <Form layout="vertical" onSubmit={handleSubmit} className="SearchForm">
         <FormItem
           label={
             <span>
@@ -279,6 +279,7 @@ export class SearchFormImpl extends React.PureComponent {
         >
           <Field
             name="service"
+            loading={loading}
             component={AdaptedVirtualSelect}
             placeholder="Select A Service"
             props={{
@@ -448,8 +449,11 @@ export class SearchFormImpl extends React.PureComponent {
         </FormItem>
 
         <Button
+          type="primary"
+          icon="arrow-right"
           htmlType="submit"
-          disabled={disabled || noSelectedService || invalid}
+          loading={submitting}
+          disabled={(disabled && !submitting) || noSelectedService || invalid}
           data-test={markers.SUBMIT_BTN}
         >
           Find Traces
@@ -462,6 +466,7 @@ export class SearchFormImpl extends React.PureComponent {
 SearchFormImpl.propTypes = {
   handleSubmit: PropTypes.func.isRequired,
   invalid: PropTypes.bool,
+  loading: PropTypes.bool,
   submitting: PropTypes.bool,
   searchMaxLookback: PropTypes.shape({
     label: PropTypes.string.isRequired,
@@ -480,6 +485,7 @@ SearchFormImpl.propTypes = {
 SearchFormImpl.defaultProps = {
   invalid: false,
   services: [],
+  loading: false,
   submitting: false,
   selectedService: null,
   selectedLookback: null,
@@ -501,6 +507,10 @@ export function mapStateToProps(state) {
     lookback,
     traceID: traceIDParams,
   } = queryString.parse(state.router.location.search);
+
+  const {
+    services: { loading },
+  } = state;
 
   const nowInMicroseconds = moment().valueOf() * 1000;
   const today = formatDate(nowInMicroseconds);
@@ -583,6 +593,7 @@ export function mapStateToProps(state) {
   }
 
   return {
+    loading,
     destroyOnUnmount: false,
     initialValues: {
       service: service || lastSearchService || '-',
