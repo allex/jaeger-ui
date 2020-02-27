@@ -50,3 +50,12 @@ limitations under the License.
   flex-grow: 1;
   position: relative;
 }
+
+.SearchResults .ub-list-reset,
+.SearchResults .ub-my3:last-child {
+  margin-bottom: 0;
+}
+
+.SearchResults .ub-my3:first-child {
+  margin-top: 0;
+}
