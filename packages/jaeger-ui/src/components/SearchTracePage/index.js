@@ -55,7 +55,11 @@ export class SearchTracePageImpl extends Component {
       searchTraces,
       urlQueryParams,
     } = this.props;
-    if (!isHomepage && urlQueryParams && !isSameQuery(urlQueryParams, queryOfResults)) {
+    if (
+      !isHomepage &&
+      urlQueryParams &&
+      !isSameQuery(stripEmbeddedState(urlQueryParams), queryOfResults || {})
+    ) {
       searchTraces(urlQueryParams);
     }
     const needForDiffs = diffCohort.filter(ft => ft.state == null).map(ft => ft.id);
@@ -233,7 +237,7 @@ const stateServicesXformer = memoizeOne(stateServices => {
 export function mapStateToProps(state) {
   const { embedded, router, services: stServices, traceDiff } = state;
   const query = queryString.parse(router.location.search);
-  const isHomepage = !Object.keys(query).length;
+  const isHomepage = !Object.keys(stripEmbeddedState(query)).length;
   const { query: queryOfResults, traces, maxDuration, traceError, loadingTraces } = stateTraceXformer(
     state.trace
   );
